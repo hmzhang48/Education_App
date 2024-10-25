@@ -66,7 +66,8 @@ LectureItem _$LectureItemFromJson(Map<String, dynamic> json) => LectureItem(
       path: json['path'] as String,
       description: json['description'] as String,
       introduction: json['introduction'] as String,
-      asset: json['asset'] as String,
+      image: json['image'] as String,
+      video: json['video'] as String,
       totalTime: (json['totalTime'] as num).toInt(),
       learningTime: (json['learningTime'] as num?)?.toInt() ?? 0,
       notes: (json['notes'] as Map<String, dynamic>?)?.map(
@@ -81,7 +82,8 @@ Map<String, dynamic> _$LectureItemToJson(LectureItem instance) =>
       'path': instance.path,
       'description': instance.description,
       'introduction': instance.introduction,
-      'asset': instance.asset,
+      'image': instance.image,
+      'video': instance.video,
       'totalTime': instance.totalTime,
       'learningTime': instance.learningTime,
       'notes': instance.notes.map((k, e) => MapEntry(k.toString(), e)),
@@ -89,12 +91,12 @@ Map<String, dynamic> _$LectureItemToJson(LectureItem instance) =>
 
 PostItem _$PostItemFromJson(Map<String, dynamic> json) => PostItem(
       group: json['group'] as String,
-      user: json['user'] as String? ?? 'reddit_logo',
+      user: json['user'] as String? ?? 'avatar',
       title: json['title'] as String,
       content: json['content'] as String,
       image:
           (json['image'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-              const [],
+              const ['placeholder.png'],
       like: (json['like'] as num?)?.toInt() ?? 0,
       bookmark: (json['bookmark'] as num?)?.toInt() ?? 0,
       comments: (json['comments'] as List<dynamic>?)
@@ -115,7 +117,7 @@ Map<String, dynamic> _$PostItemToJson(PostItem instance) => <String, dynamic>{
     };
 
 CommentItem _$CommentItemFromJson(Map<String, dynamic> json) => CommentItem(
-      user: json['user'] as String? ?? 'reddit_logo',
+      user: json['user'] as String? ?? 'avatar',
       content: json['content'] as String,
       like: (json['like'] as num?)?.toInt() ?? 0,
       bookmark: (json['bookmark'] as num?)?.toInt() ?? 0,

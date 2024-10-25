@@ -43,7 +43,7 @@ class LectureList extends StatelessWidget {
                             CardItem(
                               header: 'Lecture ${index + 1}',
                               content: snapshot.data![index].description,
-                              image: '${snapshot.data![index].asset}.jpg',
+                              image: snapshot.data![index].image,
                               onTap: () => context.goNamed(
                                 'Learn',
                                 pathParameters: {

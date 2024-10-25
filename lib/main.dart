@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'firebase_options.dart';
 import 'data_provider.dart';
 import 'data.dart';
@@ -26,9 +27,11 @@ void main() async {
   );
   late DataStore dataStore;
   if (kDebugMode) {
-    var store = FirebaseFirestore.instance;
+    final store = FirebaseFirestore.instance;
+    final storage = FirebaseStorage.instance;
     store.useFirestoreEmulator('localhost', 8080);
-    dataStore = DataStore(store);
+    storage.useStorageEmulator('localhost', 9199);
+    dataStore = DataStore(db: store, bucket: storage);
     await dataStore.init();
   }
   runApp(

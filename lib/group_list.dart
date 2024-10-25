@@ -78,8 +78,8 @@ class _GroupListState extends State<GroupList> {
                             child: Padding(
                               padding: const EdgeInsets.all(10.0),
                               child: ClipOval(
-                                child: Image.asset(
-                                  'assets/${widget.groups[index].image}',
+                                child: Image.network(
+                                  widget.groups[index].image,
                                   width: 50,
                                   height: 50,
                                 ),

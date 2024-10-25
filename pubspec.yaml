@@ -18,6 +18,7 @@ dependencies:
   path_provider:
   firebase_core:
   cloud_firestore:
+  firebase_storage:
 
 dev_dependencies:
   flutter_test:

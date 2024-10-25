@@ -10,7 +10,7 @@ class PathItem {
   final String name;
   final String job;
   final String description;
-  final String image;
+  String image;
   bool learning;
   int learningTime;
   int totalTime;
@@ -54,7 +54,7 @@ class QuestionItem {
   final String title;
   final String path;
   final String description;
-  final String image;
+  String image;
   final String question;
   final Set<String> choices;
   final String answer;
@@ -84,17 +84,19 @@ class LectureItem {
   final String path;
   final String description;
   final String introduction;
-  final String asset;
+  String image;
+  String video;
   final int totalTime;
-  final int learningTime;
-  final Map<int, String> notes;
+  int learningTime;
+  Map<int, String> notes;
 
   LectureItem({
     required this.rank,
     required this.path,
     required this.description,
     required this.introduction,
-    required this.asset,
+    required this.image,
+    required this.video,
     required this.totalTime,
     this.learningTime = 0,
     this.notes = const {},

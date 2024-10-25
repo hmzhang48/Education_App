@@ -101,12 +101,19 @@ class CardItem extends StatelessWidget {
                       ),
                 ),
               ),
-              trailing: Image.asset(
-                'assets/$image',
-                width: 60,
-                height: 60,
-                fit: BoxFit.cover,
-              ),
+              trailing: image == 'placeholder.png'
+                  ? Image.asset(
+                      'assets/$image',
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.network(
+                      image,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
             ),
             comments == null
                 ? const SizedBox.shrink()

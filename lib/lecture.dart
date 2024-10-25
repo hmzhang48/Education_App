@@ -24,9 +24,9 @@ class _LectureState extends State<Lecture> {
   @override
   void initState() {
     super.initState();
-    _controller =
-        VideoPlayerController.asset('assets/${widget.source.asset}.mp4')
-          ..initialize().then((_) => setState(() {}));
+    _controller = VideoPlayerController.networkUrl(
+      Uri.parse(widget.source.video),
+    )..initialize().then((_) => setState(() {}));
   }
 
   @override

@@ -144,7 +144,7 @@ class _QuestionListState extends State<QuestionList> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Image.asset(widget.questions[index].image),
+                    child: Image.network(widget.questions[index].image),
                   ),
                 ),
               ],
