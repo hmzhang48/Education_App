@@ -1,3 +1,5 @@
 # Education App
 
-The **Android application** is constructed with multi-platform framework **Flutter**, following **Material Design** guidelines, leveraging **GoRouter** for screen navigation and **NoSQL** database **Firestore** for data storage.
+- The **Android** app is constructed with multi-platform framework **Flutter** and **Material Components**, leveraging **GoRouter** for screen navigation.
+
+- The app is built on **Firebase**, utilizing **NoSQL** database **Firestore** and **Cloud Storage**.
