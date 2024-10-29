@@ -14,11 +14,14 @@ dependencies:
   video_player:
   image_picker:
   json_annotation:
+  shared_preferences:
   path:
   path_provider:
   firebase_core:
   cloud_firestore:
   firebase_storage:
+  firebase_ui_firestore:
+  firebase_ui_storage:
 
 dev_dependencies:
   flutter_test:
