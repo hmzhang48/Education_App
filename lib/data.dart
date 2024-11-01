@@ -1,13 +1,19 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import 'model.dart';
 
 class DataStore {
+  final SharedPreferencesAsync prefs;
+  final FirebaseAuth auth;
   final FirebaseFirestore db;
   final FirebaseStorage bucket;
 
   DataStore({
+    required this.prefs,
+    required this.auth,
     required this.db,
     required this.bucket,
   });

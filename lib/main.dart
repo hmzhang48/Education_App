@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'firebase_options.dart';
@@ -9,6 +11,8 @@ import 'data_provider.dart';
 import 'data.dart';
 import 'model.dart';
 import 'shell.dart';
+import 'welcome.dart';
+import 'sign.dart';
 import 'path_list.dart';
 import 'course_list.dart';
 import 'progress_list.dart';
@@ -25,15 +29,24 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  late DataStore dataStore;
+  final prefs = SharedPreferencesAsync();
+  final auth = FirebaseAuth.instance;
+  final store = FirebaseFirestore.instance;
+  final storage = FirebaseStorage.instance;
   if (kDebugMode) {
-    final store = FirebaseFirestore.instance;
-    final storage = FirebaseStorage.instance;
+    auth.useAuthEmulator('localhost', 9099);
     store.useFirestoreEmulator('localhost', 8080);
     storage.useStorageEmulator('localhost', 9199);
-    dataStore = DataStore(db: store, bucket: storage);
-    await dataStore.init();
+    await auth.signOut();
+    await prefs.clear();
   }
+  final dataStore = DataStore(
+    prefs: prefs,
+    auth: auth,
+    db: store,
+    bucket: storage,
+  );
+  await dataStore.init();
   runApp(
     DataProvider(
       data: dataStore,
@@ -46,28 +59,50 @@ class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(context) => MaterialApp.router(
-        theme: ThemeData(
-          colorScheme: _colorScheme,
-        ),
-        routerConfig: _router,
-      );
+  Widget build(context) {
+    return MaterialApp.router(
+      theme: ThemeData(colorScheme: _colorScheme),
+      routerConfig: _router,
+    );
+  }
 }
 
 final _colorScheme = ColorScheme.fromSeed(seedColor: const Color(0xff028090));
+
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/resource',
+  redirect: (context, state) {
+    if (DataProvider.of<DataStore>(context).auth.currentUser == null &&
+        state.fullPath!.split('/')[1] != 'welcome') {
+      return state.namedLocation('Welcome');
+    } else {
+      return null;
+    }
+  },
   routes: [
+    GoRoute(
+      path: '/welcome',
+      name: 'Welcome',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const Welcome(),
+      routes: [
+        GoRoute(
+          path: 'sign',
+          name: 'Sign',
+          parentNavigatorKey: _rootNavigatorKey,
+          builder: (context, state) {
+            return Sign(create: state.uri.queryParameters['create'] == 'true');
+          },
+        ),
+      ],
+    ),
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {
-        var path = '';
-        if (state.fullPath != null) {
-          path = state.fullPath!.split('/')[1];
-        }
+        var path = state.fullPath!.split('/')[1];
         return Shell(path: path, child: child);
       },
       routes: [

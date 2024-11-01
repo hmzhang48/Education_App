@@ -18,8 +18,10 @@ dependencies:
   path:
   path_provider:
   firebase_core:
+  firebase_auth:
   cloud_firestore:
   firebase_storage:
+  firebase_ui_auth:
   firebase_ui_firestore:
   firebase_ui_storage:
 
