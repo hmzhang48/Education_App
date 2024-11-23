@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 import 'model.dart';
 
-class Post extends StatefulWidget {
+class Post extends HookWidget {
   const Post({
     super.key,
     required this.source,
@@ -11,20 +12,8 @@ class Post extends StatefulWidget {
   final PostItem source;
 
   @override
-  State<Post> createState() => _PostState();
-}
-
-class _PostState extends State<Post> {
-  final _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
+    final controller = useTextEditingController();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Post'),
@@ -39,7 +28,7 @@ class _PostState extends State<Post> {
       body: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         shrinkWrap: true,
-        itemCount: widget.source.comments.length + 1,
+        itemCount: source.comments.length + 1,
         itemBuilder: (context, index) {
           if (index == 0) {
             return Column(
@@ -48,10 +37,11 @@ class _PostState extends State<Post> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Text(
-                    widget.source.title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontSize: 20.0,
-                        ),
+                    source.title,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontSize: 20.0),
                   ),
                 ),
                 Padding(
@@ -59,7 +49,7 @@ class _PostState extends State<Post> {
                   child: Row(
                     children: [
                       Image.asset(
-                        'assets/${widget.source.user}.png',
+                        'assets/${source.user}.png',
                         width: 50,
                         height: 50,
                       ),
@@ -71,7 +61,7 @@ class _PostState extends State<Post> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                widget.source.user,
+                                source.user,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium
@@ -82,18 +72,16 @@ class _PostState extends State<Post> {
                                     ),
                               ),
                               Text(
-                                widget.source.timestamp
+                                source.timestamp
                                             .difference(DateTime.now())
                                             .inHours <
                                         1
                                     ? 'Just posted'
-                                    : widget.source.timestamp.toString(),
+                                    : source.timestamp.toString(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
-                                    ?.copyWith(
-                                      fontSize: 12.0,
-                                    ),
+                                    ?.copyWith(fontSize: 12.0),
                               ),
                             ],
                           ),
@@ -107,7 +95,7 @@ class _PostState extends State<Post> {
                     ],
                   ),
                 ),
-                widget.source.image.isEmpty
+                source.image.isEmpty
                     ? const SizedBox.shrink()
                     : SizedBox(
                         height: 120,
@@ -116,21 +104,22 @@ class _PostState extends State<Post> {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           scrollDirection: Axis.horizontal,
                           shrinkWrap: true,
-                          itemCount: widget.source.image.length,
+                          itemCount: source.image.length,
                           itemBuilder: (context, index) => Padding(
                             padding: const EdgeInsets.only(right: 10),
                             child: Image.asset(
-                              'assets/${widget.source.image[index]}',
+                              'assets/${source.image[index]}',
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
                       ),
                 Text(
-                  widget.source.content,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontSize: 16.0,
-                      ),
+                  source.content,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(fontSize: 16.0),
                 ),
                 Row(
                   children: [
@@ -142,7 +131,7 @@ class _PostState extends State<Post> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(right: 10),
-                          child: Text(widget.source.like.toString()),
+                          child: Text(source.like.toString()),
                         )
                       ],
                     ),
@@ -155,7 +144,7 @@ class _PostState extends State<Post> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(right: 10),
-                          child: Text(widget.source.bookmark.toString()),
+                          child: Text(source.bookmark.toString()),
                         )
                       ],
                     ),
@@ -171,7 +160,7 @@ class _PostState extends State<Post> {
                   child: Row(
                     children: [
                       Image.asset(
-                        'assets/${widget.source.comments[index - 1].user}.png',
+                        'assets/${source.comments[index - 1].user}.png',
                         width: 50,
                         height: 50,
                       ),
@@ -183,7 +172,7 @@ class _PostState extends State<Post> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                widget.source.comments[index - 1].user,
+                                source.comments[index - 1].user,
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleMedium
@@ -194,18 +183,16 @@ class _PostState extends State<Post> {
                                     ),
                               ),
                               Text(
-                                widget.source.comments[index - 1].timestamp
+                                source.comments[index - 1].timestamp
                                             .difference(DateTime.now())
                                             .inHours <
                                         1
                                     ? 'Just posted'
-                                    : widget.source.timestamp.toString(),
+                                    : source.timestamp.toString(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
-                                    ?.copyWith(
-                                      fontSize: 12.0,
-                                    ),
+                                    ?.copyWith(fontSize: 12.0),
                               ),
                             ],
                           ),
@@ -220,10 +207,11 @@ class _PostState extends State<Post> {
                   ),
                 ),
                 Text(
-                  widget.source.comments[index - 1].content,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontSize: 16.0,
-                      ),
+                  source.comments[index - 1].content,
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(fontSize: 16.0),
                 ),
                 Row(
                   children: [
@@ -235,8 +223,8 @@ class _PostState extends State<Post> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(right: 10),
-                          child: Text(widget.source.comments[index - 1].like
-                              .toString()),
+                          child:
+                              Text(source.comments[index - 1].like.toString()),
                         )
                       ],
                     ),
@@ -249,8 +237,8 @@ class _PostState extends State<Post> {
                         ),
                         Padding(
                           padding: const EdgeInsets.only(right: 10),
-                          child: Text(widget.source.comments[index - 1].bookmark
-                              .toString()),
+                          child: Text(
+                              source.comments[index - 1].bookmark.toString()),
                         )
                       ],
                     ),
@@ -280,7 +268,7 @@ class _PostState extends State<Post> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: TextField(
-                      controller: _controller,
+                      controller: controller,
                       minLines: 1,
                       maxLines: 5,
                       decoration: const InputDecoration(

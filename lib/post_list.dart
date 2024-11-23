@@ -13,7 +13,7 @@ class PostList extends StatelessWidget {
   final List<PostItem> posts;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(context) {
     return ListView.builder(
       shrinkWrap: true,
       padding: const EdgeInsets.symmetric(horizontal: 20.0),

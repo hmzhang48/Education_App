@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class Note extends StatefulWidget {
+class Note extends HookWidget {
   final String time;
   final String? note;
 
@@ -11,33 +12,15 @@ class Note extends StatefulWidget {
   });
 
   @override
-  State<Note> createState() => _NoteState();
-}
-
-class _NoteState extends State<Note> {
-  bool isEditing = false;
-  late String content;
-  final _controller = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    content = widget.note == null ? '' : widget.note!;
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(context) {
+    var isEditing = useState(false);
+    var content = useState(note ?? '');
+    final controller = useTextEditingController();
     return Container(
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.fromLTRB(
           20, 0, 20, MediaQuery.of(context).viewInsets.bottom + 10),
-      child: isEditing
+      child: isEditing.value
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -45,9 +28,7 @@ class _NoteState extends State<Note> {
                 Row(
                   children: [
                     IconButton(
-                      onPressed: () => setState(() {
-                        isEditing = false;
-                      }),
+                      onPressed: () => isEditing.value = false,
                       icon: const Icon(Icons.arrow_back),
                     ),
                   ],
@@ -55,11 +36,11 @@ class _NoteState extends State<Note> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: TextField(
-                    controller: _controller,
+                    controller: controller,
                     minLines: 1,
                     maxLines: 5,
                     decoration: InputDecoration(
-                      labelText: widget.time.toString().split('.')[0],
+                      labelText: time.toString().split('.')[0],
                       border: const OutlineInputBorder(),
                     ),
                     autofocus: true,
@@ -70,10 +51,8 @@ class _NoteState extends State<Note> {
                   children: [
                     FilledButton(
                       onPressed: () {
-                        setState(() {
-                          isEditing = false;
-                          content = _controller.text;
-                        });
+                        isEditing.value = false;
+                        content.value = controller.text;
                       },
                       child: const Text('Submit'),
                     ),
@@ -89,7 +68,7 @@ class _NoteState extends State<Note> {
                   children: [
                     Expanded(
                       child: Text(
-                        widget.time.toString().split('.')[0],
+                        time.toString().split('.')[0],
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.primary,
@@ -98,12 +77,12 @@ class _NoteState extends State<Note> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => setState(() {
-                        isEditing = true;
-                        _controller.text = content;
-                      }),
+                      onPressed: () {
+                        isEditing.value = true;
+                        controller.text = content.value;
+                      },
                       icon: Icon(
-                        content == '' ? Icons.add : Icons.edit,
+                        content.value == '' ? Icons.add : Icons.edit,
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
@@ -112,7 +91,7 @@ class _NoteState extends State<Note> {
                 const Divider(),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text(content),
+                  child: Text(content.value),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

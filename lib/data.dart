@@ -1,128 +1,27 @@
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import 'model.dart';
 
-class DataStore {
-  final SharedPreferencesAsync prefs;
-  final FirebaseAuth auth;
-  final FirebaseFirestore db;
-  final FirebaseStorage bucket;
-
-  DataStore({
-    required this.prefs,
-    required this.auth,
-    required this.db,
-    required this.bucket,
-  });
-
-  Future init() async {
-    for (var item in paths) {
-      item.image = await bucket.ref().child(item.image).getDownloadURL();
-      await db.collection('paths').add(item.toJson());
-    }
-    for (var item in courses) {
-      await db.collection('courses').add(item.toJson());
-    }
-    for (var item in questions) {
-      item.image = await bucket.ref().child(item.image).getDownloadURL();
-      await db.collection('questions').add(item.toJson());
-    }
-    for (var item in lectures) {
-      item.image = await bucket.ref().child(item.image).getDownloadURL();
-      item.video = await bucket.ref().child(item.video).getDownloadURL();
-      await db.collection('lectures').add(item.toJson());
-    }
-    for (var item in posts) {
-      await db.collection('posts').add(item.toJson());
-    }
+Future initData(FirebaseFirestore db, FirebaseStorage bucket) async {
+  for (var item in paths) {
+    item.image = await bucket.ref().child(item.image).getDownloadURL();
+    await db.collection('paths').add(item.toJson());
   }
-
-  Future updatePath(String id, Map<String, dynamic> value) async {
-    final pathRef = db.collection('paths').doc(id);
-    await pathRef.update(value);
+  for (var item in courses) {
+    await db.collection('courses').add(item.toJson());
   }
-
-  Future<List<PathItem>> findPaths([bool? learning]) async {
-    return db
-        .collection('paths')
-        .where('learning', isEqualTo: learning)
-        .get()
-        .then(
-          (querySnapshot) => querySnapshot.docs
-              .map((doc) => PathItem.fromJson(doc.data())..id = doc.id)
-              .toList(growable: false),
-        );
+  for (var item in questions) {
+    item.image = await bucket.ref().child(item.image).getDownloadURL();
+    await db.collection('questions').add(item.toJson());
   }
-
-  Future<List<CourseItem>> findCourses(String id) async {
-    final path = await db
-        .collection('paths')
-        .doc(id)
-        .get()
-        .then((doc) => doc.data()?['name']);
-    return db.collection('courses').where('path', isEqualTo: path).get().then(
-          (querySnapshot) => querySnapshot.docs
-              .map((doc) => CourseItem.fromJson(doc.data()))
-              .toList(growable: false),
-        );
+  for (var item in lectures) {
+    item.image = await bucket.ref().child(item.image).getDownloadURL();
+    item.video = await bucket.ref().child(item.video).getDownloadURL();
+    await db.collection('lectures').add(item.toJson());
   }
-
-  Future<List<QuestionItem>> findQuestions(String id) async {
-    final path = await db
-        .collection('paths')
-        .doc(id)
-        .get()
-        .then((doc) => doc.data()?['name']);
-    return db.collection('questions').where('path', isEqualTo: path).get().then(
-          (querySnapshot) => querySnapshot.docs
-              .map((doc) => QuestionItem.fromJson(doc.data()))
-              .toList(growable: false),
-        );
-  }
-
-  Future<List<LectureItem>> findLectures(String id) async {
-    final path = await db
-        .collection('paths')
-        .doc(id)
-        .get()
-        .then((doc) => doc.data()?['name']);
-    return await db
-        .collection('lectures')
-        .where('path', isEqualTo: path)
-        .get()
-        .then(
-          (querySnapshot) => querySnapshot.docs
-              .map((doc) => LectureItem.fromJson(doc.data())..id = doc.id)
-              .toList(growable: false),
-        );
-  }
-
-  Future updateLecture(String id, Map<String, dynamic> value) async {
-    final pathRef = db.collection('lectures').doc(id);
-    await pathRef.update(value);
-  }
-
-  Future updateNote(String id, Duration key, String value) async {
-    final lectureRef = db.collection('lectures').doc(id);
-    await lectureRef.update({'notes.${key.inSeconds}': value});
-  }
-
-  Future<List<PostItem>> findPosts([String? group]) async {
-    Future<QuerySnapshot<Map<String, dynamic>>> querySnapshot;
-    if (group != null) {
-      querySnapshot =
-          db.collection('posts').where('group', isEqualTo: group).get();
-    } else {
-      querySnapshot = db.collection('posts').get();
-    }
-    return querySnapshot.then(
-      (querySnapshot) => querySnapshot.docs
-          .map((doc) => PostItem.fromJson(doc.data())..id = doc.id)
-          .toList(growable: false),
-    );
+  for (var item in posts) {
+    await db.collection('posts').add(item.toJson());
   }
 }
 

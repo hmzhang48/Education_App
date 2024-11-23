@@ -1,77 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'data_provider.dart';
-import 'data.dart';
+import 'state.dart';
 import 'group_list.dart';
 
-class Forum extends StatefulWidget {
+class Forum extends HookConsumerWidget {
   const Forum({super.key});
 
   @override
-  State<Forum> createState() => _ForumState();
-}
-
-class _ForumState extends State<Forum> {
-  final SearchController controller = SearchController();
-
-  @override
-  Widget build(BuildContext context) {
-    final dataStore = DataProvider.of<DataStore>(context);
-    return SafeArea(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: SearchAnchor(
-              searchController: controller,
-              builder: (context, controller) => SearchBar(
-                onTap: () => controller.openView(),
-                leading: IconButton(
-                  onPressed: Scaffold.of(context).openDrawer,
-                  icon: const Icon(Icons.menu),
-                ),
-                hintText: 'Search',
-                trailing: [
-                  IconButton(
-                    icon: const Icon(Icons.account_circle),
-                    tooltip: 'User',
-                    onPressed: () {},
-                  ),
-                ],
+  Widget build(context, ref) {
+    return ref.watch(PathNotifierProvider(true)).when(
+          data: (value) => GroupList(groups: value),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Please Retry'),
+                duration: const Duration(milliseconds: 1500),
+                width: MediaQuery.of(context).size.width / 4 * 3,
+                padding: const EdgeInsets.all(8.0),
+                behavior: SnackBarBehavior.floating,
               ),
-              suggestionsBuilder: (context, controller) async {
-                final posts = await dataStore.findPosts();
-                return posts.map(
-                  (e) => ListTile(
-                    leading: CircleAvatar(
-                      child: Text(e.title.substring(0, 1).toUpperCase()),
-                    ),
-                    title: Text(e.title),
-                    subtitle: Text(
-                      e.content,
-                      maxLines: 1,
-                    ),
-                    onTap: () => setState(
-                      () => controller.closeView(e.id.toString()),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          FutureBuilder(
-            future: dataStore.findPaths(true),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done &&
-                  snapshot.hasData) {
-                return GroupList(groups: snapshot.data!);
-              } else {
-                return const Center(child: CircularProgressIndicator());
-              }
-            },
-          )
-        ],
-      ),
-    );
+            );
+            return const SizedBox.shrink();
+          },
+        );
   }
 }

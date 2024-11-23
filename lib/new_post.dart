@@ -1,37 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-
 import 'dart:io';
 
-import 'data_provider.dart';
-import 'data.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
-class NewPost extends StatefulWidget {
+import 'state.dart';
+
+class NewPost extends HookConsumerWidget {
   const NewPost({super.key});
 
   @override
-  State<NewPost> createState() => _NewPostState();
-}
-
-class _NewPostState extends State<NewPost> {
-  final _groupController = TextEditingController();
-  final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
-  final _picker = ImagePicker();
-  final List<XFile> images = [];
-
-  @override
-  void dispose() {
-    _groupController.dispose();
-    _titleController.dispose();
-    _contentController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final dataStore = DataProvider.of<DataStore>(context);
-
+  Widget build(context, ref) {
+    final groupController = useTextEditingController();
+    final titleController = useTextEditingController();
+    final contentController = useTextEditingController();
+    final picker = useMemoized(() => ImagePicker());
+    final images = useState<List<XFile>>([]);
     return Scaffold(
       appBar: AppBar(
         title: const Text('New Post'),
@@ -58,31 +43,28 @@ class _NewPostState extends State<NewPost> {
                     ),
               ),
             ),
-            FutureBuilder(
-              future: dataStore.findPaths(true),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done &&
-                    snapshot.hasData) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 10.0),
-                    child: DropdownMenu(
-                      controller: _groupController,
-                      initialSelection:
-                          snapshot.data!.isEmpty ? '' : snapshot.data![0].name,
-                      dropdownMenuEntries: snapshot.data!
-                          .map(
-                            (e) => DropdownMenuEntry(
-                              value: e.name,
-                              label: e.name,
-                            ),
-                          )
-                          .toList(growable: false),
-                      expandedInsets: EdgeInsets.zero,
-                    ),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: switch (ref.watch(PathNotifierProvider(true))) {
+                AsyncData(:final value) => DropdownMenu(
+                    controller: groupController,
+                    initialSelection: value.isEmpty ? '' : value[0].name,
+                    dropdownMenuEntries: value
+                        .map(
+                          (e) => DropdownMenuEntry(
+                            value: e.name,
+                            label: e.name,
+                          ),
+                        )
+                        .toList(growable: false),
+                    expandedInsets: EdgeInsets.zero,
+                  ),
+                AsyncError() => const Text('Error'),
+                _ => DropdownMenu(
+                    controller: groupController,
+                    dropdownMenuEntries: [],
+                    expandedInsets: EdgeInsets.zero,
+                  ),
               },
             ),
             Padding(
@@ -98,7 +80,7 @@ class _NewPostState extends State<NewPost> {
             Padding(
               padding: const EdgeInsets.only(top: 10),
               child: TextField(
-                controller: _titleController,
+                controller: titleController,
                 decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
             ),
@@ -115,7 +97,7 @@ class _NewPostState extends State<NewPost> {
             Padding(
               padding: const EdgeInsets.only(top: 10.0),
               child: TextField(
-                controller: _contentController,
+                controller: contentController,
                 minLines: 5,
                 maxLines: 10,
                 decoration: const InputDecoration(border: OutlineInputBorder()),
@@ -138,9 +120,9 @@ class _NewPostState extends State<NewPost> {
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 scrollDirection: Axis.horizontal,
                 shrinkWrap: true,
-                itemCount: images.length + 1,
+                itemCount: images.value.length + 1,
                 itemBuilder: (context, index) {
-                  if (index == images.length) {
+                  if (index == images.value.length) {
                     return DecoratedBox(
                       decoration: const BoxDecoration(
                         image: DecorationImage(
@@ -158,10 +140,10 @@ class _NewPostState extends State<NewPost> {
                               size: 50,
                             ),
                             onPressed: () async {
-                              var image = await _picker.pickImage(
+                              var image = await picker.pickImage(
                                   source: ImageSource.gallery);
                               if (image != null) {
-                                setState(() => images.add(image));
+                                images.value = [...images.value, image];
                               }
                             },
                           ),
@@ -172,7 +154,7 @@ class _NewPostState extends State<NewPost> {
                     return Padding(
                       padding: const EdgeInsets.only(right: 10),
                       child: Image.file(
-                        File(images[index].path),
+                        File(images.value[index].path),
                         fit: BoxFit.cover,
                       ),
                     );

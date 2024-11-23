@@ -1,44 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
-class Welcome extends StatefulWidget {
+class Welcome extends HookWidget {
   const Welcome({super.key});
-
-  @override
-  State<Welcome> createState() => _WelcomeState();
-}
-
-class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
-  late PageController _pageController;
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-    _tabController = TabController(length: 3, vsync: this);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _pageController.dispose();
-    _tabController.dispose();
-  }
 
   @override
   Widget build(context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
+    final pageController = usePageController();
+    final tabController = useTabController(initialLength: 3);
+
     return Scaffold(
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: [
           PageView(
-            controller: _pageController,
+            controller: pageController,
             onPageChanged: (index) {
-              _tabController.index = index;
+              tabController.index = index;
             },
             children: [
               Center(
@@ -100,7 +82,7 @@ class _WelcomeState extends State<Welcome> with TickerProviderStateMixin {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
             child: TabPageSelector(
-              controller: _tabController,
+              controller: tabController,
               color: colorScheme.surface,
               selectedColor: colorScheme.primary,
             ),

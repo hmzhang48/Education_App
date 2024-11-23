@@ -1,5 +1,5 @@
 name: education_app
-description: "A new Flutter project."
+description: "Education App"
 publish_to: 'none'
 version: 0.1.0
 
@@ -24,6 +24,10 @@ dependencies:
   firebase_ui_auth:
   firebase_ui_firestore:
   firebase_ui_storage:
+  flutter_hooks:
+  hooks_riverpod:
+  freezed_annotation:
+  riverpod_annotation:
 
 dev_dependencies:
   flutter_test:
@@ -31,6 +35,9 @@ dev_dependencies:
   flutter_lints:
   build_runner:
   json_serializable:
+  freezed:
+  riverpod_generator:
+  riverpod_lint:
 
 flutter:
   uses-material-design: true

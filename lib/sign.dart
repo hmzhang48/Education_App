@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'data_provider.dart';
-import 'data.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class Sign extends StatefulWidget {
+import 'state.dart';
+
+class Sign extends HookConsumerWidget {
   final bool create;
 
   const Sign({
@@ -13,27 +15,13 @@ class Sign extends StatefulWidget {
   });
 
   @override
-  State<Sign> createState() => _SignState();
-}
-
-class _SignState extends State<Sign> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-
-  @override
-  void dispose() {
-    super.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-  }
-
-  @override
-  Widget build(context) {
-    var auth = DataProvider.of<DataStore>(context).auth;
+  Widget build(context, ref) {
+    final emailController = useTextEditingController();
+    final passwordController = useTextEditingController();
     return Scaffold(
       appBar: AppBar(
         title: Center(
-          child: Text(widget.create ? 'Sign up' : 'Sign in'),
+          child: Text(create ? 'Sign up' : 'Sign in'),
         ),
         actions: [
           IconButton(
@@ -73,8 +61,9 @@ class _SignState extends State<Sign> {
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: FilledButton(
                 onPressed: () async {
+                  final auth = ref.read(authProvider);
                   try {
-                    widget.create
+                    create
                         ? await auth.createUserWithEmailAndPassword(
                             email: emailController.text,
                             password: passwordController.text,
@@ -104,7 +93,7 @@ class _SignState extends State<Sign> {
                     }
                   }
                 },
-                child: Text(widget.create ? 'Sign up' : 'Sign in'),
+                child: Text(create ? 'Sign up' : 'Sign in'),
               ),
             ),
           ],

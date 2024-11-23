@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'data_provider.dart';
-import 'data.dart';
+import 'state.dart';
 
-var title = {
-  0: 'Resource',
-  1: 'Progress',
-  2: 'Forum',
-};
+GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
-class Shell extends StatefulWidget {
+class Shell extends HookConsumerWidget {
   final String? path;
   final Widget child;
 
@@ -21,27 +18,32 @@ class Shell extends StatefulWidget {
   });
 
   @override
-  State<Shell> createState() => _ShellState();
-}
-
-class _ShellState extends State<Shell> {
-  int _navigationDrawerIndex = 0;
-  int _navigationBarIndex = 0;
-  final SearchController controller = SearchController();
-
-  @override
-  Widget build(context) {
-    _navigationBarIndex = switch (widget.path) {
+  Widget build(context, ref) {
+    final controller = useSearchController();
+    var navigationDrawerIndex = switch (path) {
+      'profile' => 1,
+      'setting' => 2,
+      _ => 0,
+    };
+    var navigationBarIndex = switch (path) {
       'resource' => 0,
       'progress' => 1,
       'forum' => 2,
-      _ => _navigationBarIndex,
+      _ => 3,
     };
     return Scaffold(
-      appBar: switch (_navigationBarIndex) {
+      key: scaffoldKey,
+      appBar: switch (navigationBarIndex) {
         0 || 1 => AppBar(
             title: Center(
-              child: Text(title[_navigationBarIndex]!),
+              child: Text(
+                switch (navigationBarIndex) {
+                  0 => 'Resource',
+                  1 => 'Progress',
+                  2 => 'Forum',
+                  _ => ''
+                },
+              ),
             ),
             actions: [
               IconButton(
@@ -51,13 +53,81 @@ class _ShellState extends State<Shell> {
               ),
             ],
           ),
+        2 => PreferredSize(
+            preferredSize: Size.fromHeight(kToolbarHeight),
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: SearchAnchor.bar(
+                  searchController: controller,
+                  barLeading: IconButton(
+                    onPressed: scaffoldKey.currentState!.openDrawer,
+                    icon: const Icon(Icons.menu),
+                  ),
+                  barHintText: 'Search',
+                  barTrailing: [
+                    IconButton(
+                      icon: const Icon(Icons.account_circle),
+                      tooltip: 'User',
+                      onPressed: () {},
+                    ),
+                  ],
+                  suggestionsBuilder: (context, controller) async {
+                    final value = await ref
+                        .read(PostNotifierProvider().notifier)
+                        .suggestion();
+                    return value.map(
+                      (e) => ListTile(
+                        leading: CircleAvatar(
+                          child: Text(e.title.substring(0, 1).toUpperCase()),
+                        ),
+                        title: Text(e.title),
+                        subtitle: Text(
+                          e.content,
+                          maxLines: 1,
+                        ),
+                        onTap: () => controller.closeView(e.title.toString()),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        3 => AppBar(
+            title: Center(
+              child: Text(
+                switch (navigationDrawerIndex) {
+                  1 => 'Profile',
+                  2 => 'Setting',
+                  _ => ''
+                },
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                tooltip: 'More',
+                onPressed: () {},
+              ),
+            ],
+          ),
         _ => null,
       },
       drawer: NavigationDrawer(
-        selectedIndex: _navigationDrawerIndex,
-        onDestinationSelected: (int index) => setState(
-          () => _navigationDrawerIndex = index,
-        ),
+        selectedIndex: navigationDrawerIndex,
+        onDestinationSelected: (int index) {
+          if (index != navigationDrawerIndex) {
+            context.goNamed(
+              switch (index) {
+                0 => 'Resource',
+                1 => 'Profile',
+                2 => 'Setting',
+                _ => '',
+              },
+            );
+          }
+        },
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(
@@ -94,11 +164,6 @@ class _ShellState extends State<Shell> {
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
           ),
-          const NavigationDrawerDestination(
-            label: Text('Setting'),
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-          ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.0),
             child: Divider(),
@@ -118,22 +183,22 @@ class _ShellState extends State<Shell> {
           ),
           const NavigationDrawerDestination(
             label: Text('Profile'),
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-          ),
-          const NavigationDrawerDestination(
-            label: Text('badges'),
-            icon: Icon(Icons.emoji_events_outlined),
-            selectedIcon: Icon(Icons.emoji_events),
+            icon: Icon(Icons.account_circle_outlined),
+            selectedIcon: Icon(Icons.account_circle),
           ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.0),
             child: Divider(),
           ),
+          const NavigationDrawerDestination(
+            label: Text('Setting'),
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
+          ),
         ],
       ),
-      body: widget.child,
-      floatingActionButton: switch (_navigationBarIndex) {
+      body: child,
+      floatingActionButton: switch (navigationBarIndex) {
         0 => SearchAnchor(
             searchController: controller,
             builder: (context, controller) => FloatingActionButton(
@@ -141,18 +206,16 @@ class _ShellState extends State<Shell> {
               onPressed: () => controller.openView(),
             ),
             suggestionsBuilder: (context, controller) async {
-              final dataStore = DataProvider.of<DataStore>(context);
-              final paths = await dataStore.findPaths();
-              return paths.map(
+              final value =
+                  await ref.read(PathNotifierProvider().notifier).suggestion();
+              return value.map(
                 (e) => ListTile(
                   leading: CircleAvatar(
                     child: Text(e.name.substring(0, 1).toUpperCase()),
                   ),
                   title: Text(e.name),
                   subtitle: Text(e.job),
-                  onTap: () => setState(
-                    () => controller.closeView(e.id.toString()),
-                  ),
+                  onTap: () => controller.closeView(e.name.toString()),
                 ),
               );
             },
@@ -163,31 +226,41 @@ class _ShellState extends State<Shell> {
           ),
         _ => null,
       },
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _navigationBarIndex,
-        onDestinationSelected: (int index) {
-          if (index != _navigationBarIndex) {
-            context.goNamed(title[index]!);
-          }
-        },
-        destinations: const [
-          NavigationDestination(
-            selectedIcon: Icon(Icons.source),
-            icon: Icon(Icons.source_outlined),
-            label: 'Resource',
+      bottomNavigationBar: switch (navigationDrawerIndex) {
+        0 => NavigationBar(
+            selectedIndex: navigationBarIndex,
+            onDestinationSelected: (int index) {
+              if (index != navigationBarIndex) {
+                context.goNamed(
+                  switch (index) {
+                    0 => 'Resource',
+                    1 => 'Progress',
+                    2 => 'Forum',
+                    _ => ''
+                  },
+                );
+              }
+            },
+            destinations: const [
+              NavigationDestination(
+                selectedIcon: Icon(Icons.source),
+                icon: Icon(Icons.source_outlined),
+                label: 'Resource',
+              ),
+              NavigationDestination(
+                selectedIcon: Icon(Icons.web_stories),
+                icon: Icon(Icons.web_stories_outlined),
+                label: 'Progress',
+              ),
+              NavigationDestination(
+                selectedIcon: Icon(Icons.forum),
+                icon: Icon(Icons.forum_outlined),
+                label: 'Forum',
+              ),
+            ],
           ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.web_stories),
-            icon: Icon(Icons.web_stories_outlined),
-            label: 'Progress',
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.forum),
-            icon: Icon(Icons.forum_outlined),
-            label: 'Forum',
-          ),
-        ],
-      ),
+        _ => null,
+      },
     );
   }
 }

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'data_provider.dart';
-import 'data.dart';
 import 'model.dart';
+import 'state.dart';
 import 'post_list.dart';
 
-class GroupList extends StatefulWidget {
+class GroupList extends HookConsumerWidget {
   const GroupList({
     super.key,
     required this.groups,
@@ -14,22 +15,9 @@ class GroupList extends StatefulWidget {
   final List<PathItem> groups;
 
   @override
-  State<GroupList> createState() => _GroupListState();
-}
-
-class _GroupListState extends State<GroupList> {
-  late String group;
-
-  @override
-  void initState() {
-    super.initState();
-    group = widget.groups.isEmpty ? '' : widget.groups[0].name;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final dataStore = DataProvider.of<DataStore>(context);
-    return widget.groups.isEmpty
+  Widget build(context, ref) {
+    var group = useState(groups.isEmpty ? '' : groups[0].name);
+    return groups.isEmpty
         ? const SizedBox.shrink()
         : Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,20 +42,20 @@ class _GroupListState extends State<GroupList> {
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.only(left: 20),
                       shrinkWrap: true,
-                      itemCount: widget.groups.length,
+                      itemCount: groups.length,
                       itemBuilder: (context, index) => Padding(
                         padding: const EdgeInsets.only(right: 20),
                         child: InkWell(
                           onTap: () {
-                            if (group != widget.groups[index].name) {
-                              setState(() => group = widget.groups[index].name);
+                            if (group.value != groups[index].name) {
+                              group.value = groups[index].name;
                             }
                           },
                           child: DecoratedBox(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: widget.groups[index].name == group
+                                color: groups[index].name == group.value
                                     ? Theme.of(context).colorScheme.primary
                                     : Theme.of(context)
                                         .colorScheme
@@ -79,7 +67,7 @@ class _GroupListState extends State<GroupList> {
                               padding: const EdgeInsets.all(10.0),
                               child: ClipOval(
                                 child: Image.network(
-                                  widget.groups[index].image,
+                                  groups[index].image,
                                   width: 50,
                                   height: 50,
                                 ),
@@ -95,24 +83,30 @@ class _GroupListState extends State<GroupList> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Text(
-                  group,
+                  group.value,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                         fontSize: 20.0,
                       ),
                 ),
               ),
-              FutureBuilder(
-                future: dataStore.findPosts(group),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done &&
-                      snapshot.hasData) {
-                    return PostList(posts: snapshot.data!);
-                  } else {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                },
-              )
+              ref.watch(PostNotifierProvider(group.value)).when(
+                    data: (value) => PostList(posts: value),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (error, stack) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Please Retry'),
+                          duration: const Duration(milliseconds: 1500),
+                          width: MediaQuery.of(context).size.width / 4 * 3,
+                          padding: const EdgeInsets.all(8.0),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                      return const SizedBox.shrink();
+                    },
+                  ),
             ],
           );
   }
