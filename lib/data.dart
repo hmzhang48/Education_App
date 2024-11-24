@@ -132,7 +132,9 @@ var posts = [
       CommentItem(
         content:
             'I\'ve dived into AI legal definitions for my job, and they all cover pretty much all software when read literally. And I think that\'s about as good as possible - AI doesn\'t have any better technical definition.\nIt\'s trying legislate around an idea that isn\'t even fully formed.',
+        timestamp: DateTime(2024, 12, 31),
       )
     ],
+    timestamp: DateTime(2024, 12, 31),
   ),
 ];

@@ -103,6 +103,7 @@ PostItem _$PostItemFromJson(Map<String, dynamic> json) => PostItem(
               ?.map((e) => CommentItem.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      timestamp: DateTime.parse(json['timestamp'] as String),
     );
 
 Map<String, dynamic> _$PostItemToJson(PostItem instance) => <String, dynamic>{
@@ -113,6 +114,7 @@ Map<String, dynamic> _$PostItemToJson(PostItem instance) => <String, dynamic>{
       'image': instance.image,
       'like': instance.like,
       'bookmark': instance.bookmark,
+      'timestamp': instance.timestamp.toIso8601String(),
       'comments': PostItem.commentsToJson(instance.comments),
     };
 
@@ -121,6 +123,7 @@ CommentItem _$CommentItemFromJson(Map<String, dynamic> json) => CommentItem(
       content: json['content'] as String,
       like: (json['like'] as num?)?.toInt() ?? 0,
       bookmark: (json['bookmark'] as num?)?.toInt() ?? 0,
+      timestamp: DateTime.parse(json['timestamp'] as String),
     );
 
 Map<String, dynamic> _$CommentItemToJson(CommentItem instance) =>
@@ -129,4 +132,5 @@ Map<String, dynamic> _$CommentItemToJson(CommentItem instance) =>
       'content': instance.content,
       'like': instance.like,
       'bookmark': instance.bookmark,
+      'timestamp': instance.timestamp.toIso8601String(),
     };

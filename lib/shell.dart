@@ -5,7 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'state.dart';
 
-GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+final _rootScaffoldKey = GlobalKey<ScaffoldState>();
 
 class Shell extends HookConsumerWidget {
   final String? path;
@@ -32,7 +32,7 @@ class Shell extends HookConsumerWidget {
       _ => 3,
     };
     return Scaffold(
-      key: scaffoldKey,
+      key: _rootScaffoldKey,
       appBar: switch (navigationBarIndex) {
         0 || 1 => AppBar(
             title: Center(
@@ -61,7 +61,7 @@ class Shell extends HookConsumerWidget {
                 child: SearchAnchor.bar(
                   searchController: controller,
                   barLeading: IconButton(
-                    onPressed: scaffoldKey.currentState!.openDrawer,
+                    onPressed: _rootScaffoldKey.currentState!.openDrawer,
                     icon: const Icon(Icons.menu),
                   ),
                   barHintText: 'Search',

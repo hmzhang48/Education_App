@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'model.dart';
+import 'state.dart';
 import 'welcome.dart';
 import 'shell.dart';
 import 'sign.dart';
@@ -18,49 +20,66 @@ import 'new_post.dart';
 import 'profile.dart';
 import 'setting.dart';
 
-final rootNavigatorKey = GlobalKey<NavigatorState>();
-final shellNavigatorKey = GlobalKey<NavigatorState>();
+GoRouter createRouter(WidgetRef ref) => GoRouter(
+      navigatorKey: _rootNavigatorKey,
+      initialLocation: '/resource',
+      redirect: (context, state) {
+        if (ref.read(authProvider).currentUser == null &&
+            state.fullPath!.split('/')[1] != 'welcome') {
+          return state.namedLocation('Welcome');
+        } else {
+          return null;
+        }
+      },
+      routes: [
+        _welcomeRouter,
+        _shellRouter,
+      ],
+    );
 
-final welcomeRouter = GoRoute(
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final _shellNavigatorKey = GlobalKey<NavigatorState>();
+
+final _welcomeRouter = GoRoute(
   path: '/welcome',
   name: 'Welcome',
-  parentNavigatorKey: rootNavigatorKey,
+  parentNavigatorKey: _rootNavigatorKey,
   builder: (context, state) => const Welcome(),
   routes: [
     GoRoute(
       path: 'sign',
       name: 'Sign',
-      parentNavigatorKey: rootNavigatorKey,
+      parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         return Sign(create: state.uri.queryParameters['create'] == 'true');
       },
     ),
   ],
 );
-final shellRouter = ShellRoute(
-  navigatorKey: shellNavigatorKey,
+final _shellRouter = ShellRoute(
+  navigatorKey: _shellNavigatorKey,
   builder: (context, state, child) {
     var path = state.fullPath!.split('/')[1];
     return Shell(path: path, child: child);
   },
   routes: [
-    resourceRouter,
-    progressRouter,
-    forumRouter,
-    profileRouter,
-    settingRouter,
+    _resourceRouter,
+    _progressRouter,
+    _forumRouter,
+    _profileRouter,
+    _settingRouter,
   ],
 );
-final resourceRouter = GoRoute(
+final _resourceRouter = GoRoute(
   path: '/resource',
   name: 'Resource',
-  parentNavigatorKey: shellNavigatorKey,
+  parentNavigatorKey: _shellNavigatorKey,
   builder: (context, state) => const PathList(),
   routes: [
     GoRoute(
       path: ':id',
       name: 'Course',
-      parentNavigatorKey: rootNavigatorKey,
+      parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         return CourseList(id: state.pathParameters['id']!);
       },
@@ -68,7 +87,7 @@ final resourceRouter = GoRoute(
         GoRoute(
           path: 'test',
           name: 'Test',
-          parentNavigatorKey: rootNavigatorKey,
+          parentNavigatorKey: _rootNavigatorKey,
           builder: (context, state) {
             return Test(id: state.pathParameters['id']!);
           },
@@ -76,7 +95,7 @@ final resourceRouter = GoRoute(
         GoRoute(
           path: 'result',
           name: 'Result',
-          parentNavigatorKey: rootNavigatorKey,
+          parentNavigatorKey: _rootNavigatorKey,
           builder: (context, state) {
             return Result(
               id: state.pathParameters['id']!,
@@ -88,16 +107,16 @@ final resourceRouter = GoRoute(
     ),
   ],
 );
-final progressRouter = GoRoute(
+final _progressRouter = GoRoute(
   path: '/progress',
   name: 'Progress',
-  parentNavigatorKey: shellNavigatorKey,
+  parentNavigatorKey: _shellNavigatorKey,
   builder: (context, state) => const ProgressList(),
   routes: [
     GoRoute(
       path: ':id',
       name: 'Lecture',
-      parentNavigatorKey: rootNavigatorKey,
+      parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         return LectureList(id: state.pathParameters['id']!);
       },
@@ -105,7 +124,7 @@ final progressRouter = GoRoute(
         GoRoute(
           path: ':index',
           name: 'Learn',
-          parentNavigatorKey: rootNavigatorKey,
+          parentNavigatorKey: _rootNavigatorKey,
           builder: (context, state) {
             int index = int.parse(state.pathParameters['index']!);
             return Lecture(index: index, source: state.extra as LectureItem);
@@ -115,16 +134,16 @@ final progressRouter = GoRoute(
     )
   ],
 );
-final forumRouter = GoRoute(
+final _forumRouter = GoRoute(
   path: '/forum',
   name: 'Forum',
-  parentNavigatorKey: shellNavigatorKey,
+  parentNavigatorKey: _shellNavigatorKey,
   builder: (context, state) => const Forum(),
   routes: [
     GoRoute(
       path: 'post',
       name: 'Post',
-      parentNavigatorKey: rootNavigatorKey,
+      parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         return Post(source: state.extra as PostItem);
       },
@@ -132,20 +151,20 @@ final forumRouter = GoRoute(
     GoRoute(
       path: 'new',
       name: 'New Post',
-      parentNavigatorKey: rootNavigatorKey,
+      parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const NewPost(),
     ),
   ],
 );
-final profileRouter = GoRoute(
+final _profileRouter = GoRoute(
   path: '/profile',
   name: 'Profile',
-  parentNavigatorKey: shellNavigatorKey,
+  parentNavigatorKey: _shellNavigatorKey,
   builder: (context, state) => const Profile(),
 );
-final settingRouter = GoRoute(
+final _settingRouter = GoRoute(
   path: '/setting',
   name: 'Setting',
-  parentNavigatorKey: shellNavigatorKey,
+  parentNavigatorKey: _shellNavigatorKey,
   builder: (context, state) => const Setting(),
 );

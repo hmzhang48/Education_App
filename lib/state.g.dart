@@ -611,7 +611,7 @@ class _LectureNotifierProviderElement
   String get id => (origin as LectureNotifierProvider).id;
 }
 
-String _$postNotifierHash() => r'3eb379d287dcdba3450a4dc077c1ed8a03d6d9c4';
+String _$postNotifierHash() => r'e2c829803befad03a684454bae26fc2c47a16018';
 
 abstract class _$PostNotifier
     extends BuildlessAutoDisposeAsyncNotifier<List<PostItem>> {

@@ -142,7 +142,7 @@ class PostNotifier extends _$PostNotifier {
   Future<List<PostItem>> suggestion() async {
     return _db
         .collection('posts')
-        .orderBy('title', descending: true)
+        .orderBy('like', descending: true)
         .limit(3)
         .get()
         .then(

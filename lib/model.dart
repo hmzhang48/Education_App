@@ -134,7 +134,8 @@ class PostItem {
     this.like = 0,
     this.bookmark = 0,
     this.comments = const [],
-  }) : timestamp = DateTime.now();
+    required this.timestamp,
+  });
 
   factory PostItem.fromJson(Map<String, dynamic> json) =>
       _$PostItemFromJson(json);
@@ -158,7 +159,8 @@ class CommentItem {
     required this.content,
     this.like = 0,
     this.bookmark = 0,
-  }) : timestamp = DateTime.now();
+    required this.timestamp,
+  });
 
   factory CommentItem.fromJson(Map<String, dynamic> json) =>
       _$CommentItemFromJson(json);
