@@ -66,7 +66,7 @@ class CardItem extends StatelessWidget {
                                 timestamp!.difference(DateTime.now()).inHours <
                                         1
                                     ? 'Just posted'
-                                    : timestamp.toString(),
+                                    : timestamp!.toString().split('.')[0],
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall

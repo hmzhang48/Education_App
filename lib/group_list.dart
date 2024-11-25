@@ -90,7 +90,7 @@ class GroupList extends HookConsumerWidget {
                       ),
                 ),
               ),
-              ref.watch(PostNotifierProvider(group.value)).when(
+              ref.watch(PostNotifierProvider(group: group.value)).when(
                     data: (value) => PostList(posts: value),
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),

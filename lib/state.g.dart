@@ -318,7 +318,7 @@ class _QuestionProviderElement
   String get id => (origin as QuestionProvider).id;
 }
 
-String _$pathNotifierHash() => r'727601a93693406f8f9f0b3d461099875541f5df';
+String _$pathNotifierHash() => r'80adcd6999a1c4f0b41b87ac6cf0b9d1e3f2aa0b';
 
 abstract class _$PathNotifier
     extends BuildlessAutoDisposeAsyncNotifier<List<PathItem>> {
@@ -611,15 +611,17 @@ class _LectureNotifierProviderElement
   String get id => (origin as LectureNotifierProvider).id;
 }
 
-String _$postNotifierHash() => r'e2c829803befad03a684454bae26fc2c47a16018';
+String _$postNotifierHash() => r'b63a92bb0632b2e543e207e15d07393dc64e21ab';
 
 abstract class _$PostNotifier
     extends BuildlessAutoDisposeAsyncNotifier<List<PostItem>> {
   late final String? group;
+  late final String? user;
 
-  FutureOr<List<PostItem>> build([
+  FutureOr<List<PostItem>> build({
     String? group,
-  ]);
+    String? user,
+  });
 }
 
 /// See also [PostNotifier].
@@ -632,11 +634,13 @@ class PostNotifierFamily extends Family<AsyncValue<List<PostItem>>> {
   const PostNotifierFamily();
 
   /// See also [PostNotifier].
-  PostNotifierProvider call([
+  PostNotifierProvider call({
     String? group,
-  ]) {
+    String? user,
+  }) {
     return PostNotifierProvider(
-      group,
+      group: group,
+      user: user,
     );
   }
 
@@ -645,7 +649,8 @@ class PostNotifierFamily extends Family<AsyncValue<List<PostItem>>> {
     covariant PostNotifierProvider provider,
   ) {
     return call(
-      provider.group,
+      group: provider.group,
+      user: provider.user,
     );
   }
 
@@ -668,10 +673,13 @@ class PostNotifierFamily extends Family<AsyncValue<List<PostItem>>> {
 class PostNotifierProvider
     extends AutoDisposeAsyncNotifierProviderImpl<PostNotifier, List<PostItem>> {
   /// See also [PostNotifier].
-  PostNotifierProvider([
+  PostNotifierProvider({
     String? group,
-  ]) : this._internal(
-          () => PostNotifier()..group = group,
+    String? user,
+  }) : this._internal(
+          () => PostNotifier()
+            ..group = group
+            ..user = user,
           from: postNotifierProvider,
           name: r'postNotifierProvider',
           debugGetCreateSourceHash:
@@ -682,6 +690,7 @@ class PostNotifierProvider
           allTransitiveDependencies:
               PostNotifierFamily._allTransitiveDependencies,
           group: group,
+          user: user,
         );
 
   PostNotifierProvider._internal(
@@ -692,16 +701,19 @@ class PostNotifierProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.group,
+    required this.user,
   }) : super.internal();
 
   final String? group;
+  final String? user;
 
   @override
   FutureOr<List<PostItem>> runNotifierBuild(
     covariant PostNotifier notifier,
   ) {
     return notifier.build(
-      group,
+      group: group,
+      user: user,
     );
   }
 
@@ -710,13 +722,16 @@ class PostNotifierProvider
     return ProviderOverride(
       origin: this,
       override: PostNotifierProvider._internal(
-        () => create()..group = group,
+        () => create()
+          ..group = group
+          ..user = user,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         group: group,
+        user: user,
       ),
     );
   }
@@ -729,13 +744,16 @@ class PostNotifierProvider
 
   @override
   bool operator ==(Object other) {
-    return other is PostNotifierProvider && other.group == group;
+    return other is PostNotifierProvider &&
+        other.group == group &&
+        other.user == user;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, group.hashCode);
+    hash = _SystemHash.combine(hash, user.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -746,6 +764,9 @@ class PostNotifierProvider
 mixin PostNotifierRef on AutoDisposeAsyncNotifierProviderRef<List<PostItem>> {
   /// The parameter `group` of this provider.
   String? get group;
+
+  /// The parameter `user` of this provider.
+  String? get user;
 }
 
 class _PostNotifierProviderElement
@@ -755,6 +776,26 @@ class _PostNotifierProviderElement
 
   @override
   String? get group => (origin as PostNotifierProvider).group;
+  @override
+  String? get user => (origin as PostNotifierProvider).user;
 }
+
+String _$suggestionNotifierHash() =>
+    r'a65ab79af00b380315bf1e8e9cdcaa4d44db29ab';
+
+/// See also [SuggestionNotifier].
+@ProviderFor(SuggestionNotifier)
+final suggestionNotifierProvider =
+    AutoDisposeNotifierProvider<SuggestionNotifier, void>.internal(
+  SuggestionNotifier.new,
+  name: r'suggestionNotifierProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$suggestionNotifierHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$SuggestionNotifier = AutoDisposeNotifier<void>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -74,8 +74,8 @@ class Shell extends HookConsumerWidget {
                   ],
                   suggestionsBuilder: (context, controller) async {
                     final value = await ref
-                        .read(PostNotifierProvider().notifier)
-                        .suggestion();
+                        .read(suggestionNotifierProvider.notifier)
+                        .getPosts();
                     return value.map(
                       (e) => ListTile(
                         leading: CircleAvatar(
@@ -206,8 +206,9 @@ class Shell extends HookConsumerWidget {
               onPressed: () => controller.openView(),
             ),
             suggestionsBuilder: (context, controller) async {
-              final value =
-                  await ref.read(PathNotifierProvider().notifier).suggestion();
+              final value = await ref
+                  .read(suggestionNotifierProvider.notifier)
+                  .getPaths();
               return value.map(
                 (e) => ListTile(
                   leading: CircleAvatar(

@@ -47,20 +47,6 @@ class PathNotifier extends _$PathNotifier {
         );
   }
 
-  Future<List<PathItem>> suggestion() async {
-    return _db
-        .collection('paths')
-        .orderBy('name')
-        .limit(3)
-        .where('learning', isEqualTo: false)
-        .get()
-        .then(
-          (querySnapshot) => querySnapshot.docs
-              .map((doc) => PathItem.fromJson(doc.data())..id = doc.id)
-              .toList(growable: false),
-        );
-  }
-
   Future updatePath(String id, Map<String, dynamic> value) async {
     final pathRef = _db.collection('paths').doc(id);
     await pathRef.update(value);
@@ -131,19 +117,11 @@ class LectureNotifier extends _$LectureNotifier {
 @riverpod
 class PostNotifier extends _$PostNotifier {
   @override
-  Future<List<PostItem>> build([String? group]) async {
-    return _db.collection('posts').where('group', isEqualTo: group).get().then(
-          (value) => value.docs
-              .map((doc) => PostItem.fromJson(doc.data())..id = doc.id)
-              .toList(growable: false),
-        );
-  }
-
-  Future<List<PostItem>> suggestion() async {
+  Future<List<PostItem>> build({String? group, String? user}) async {
     return _db
         .collection('posts')
-        .orderBy('like', descending: true)
-        .limit(3)
+        .where('group', isEqualTo: group)
+        .where('user', isEqualTo: user)
         .get()
         .then(
           (value) => value.docs
@@ -151,4 +129,33 @@ class PostNotifier extends _$PostNotifier {
               .toList(growable: false),
         );
   }
+}
+
+@riverpod
+class SuggestionNotifier extends _$SuggestionNotifier {
+  @override
+  void build() {}
+
+  Future<List<PathItem>> getPaths() async => _db
+      .collection('paths')
+      .orderBy('name')
+      .limit(3)
+      .where('learning', isEqualTo: false)
+      .get()
+      .then(
+        (querySnapshot) => querySnapshot.docs
+            .map((doc) => PathItem.fromJson(doc.data())..id = doc.id)
+            .toList(growable: false),
+      );
+
+  Future<List<PostItem>> getPosts() async => _db
+      .collection('posts')
+      .orderBy('like', descending: true)
+      .limit(3)
+      .get()
+      .then(
+        (value) => value.docs
+            .map((doc) => PostItem.fromJson(doc.data())..id = doc.id)
+            .toList(growable: false),
+      );
 }

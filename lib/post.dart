@@ -77,7 +77,7 @@ class Post extends HookWidget {
                                             .inHours <
                                         1
                                     ? 'Just posted'
-                                    : source.timestamp.toString(),
+                                    : source.timestamp.toString().split('.')[0],
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
@@ -188,7 +188,7 @@ class Post extends HookWidget {
                                             .inHours <
                                         1
                                     ? 'Just posted'
-                                    : source.timestamp.toString(),
+                                    : source.timestamp.toString().split('.')[0],
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
