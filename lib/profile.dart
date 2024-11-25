@@ -32,7 +32,7 @@ class Profile extends HookConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Avatar',
+                      'avatar',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
                             fontSize: 20.0,
@@ -40,7 +40,7 @@ class Profile extends HookConsumerWidget {
                     ),
                     Text(
                       'Student',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontSize: 12.0,
                           ),
                     ),
@@ -69,14 +69,31 @@ class Profile extends HookConsumerWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  runSpacing: 10,
                   children: [
-                    Image.asset(
-                      'assets/badge.png',
-                      width: 100,
-                      height: 100,
-                    )
+                    Column(
+                      children: [
+                        Image.asset(
+                          'assets/badge.png',
+                          width: 100,
+                          height: 100,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Text(
+                            'Badge',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                  fontSize: 12.0,
+                                ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),

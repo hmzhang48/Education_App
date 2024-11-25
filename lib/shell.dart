@@ -49,7 +49,9 @@ class Shell extends HookConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.account_circle),
                 tooltip: 'User',
-                onPressed: () {},
+                onPressed: () {
+                  context.goNamed('Profile');
+                },
               ),
             ],
           ),
@@ -69,7 +71,9 @@ class Shell extends HookConsumerWidget {
                     IconButton(
                       icon: const Icon(Icons.account_circle),
                       tooltip: 'User',
-                      onPressed: () {},
+                      onPressed: () {
+                        context.goNamed('Profile');
+                      },
                     ),
                   ],
                   suggestionsBuilder: (context, controller) async {
@@ -126,6 +130,7 @@ class Shell extends HookConsumerWidget {
                 _ => '',
               },
             );
+            _rootScaffoldKey.currentState!.closeDrawer();
           }
         },
         children: [
@@ -145,19 +150,6 @@ class Shell extends HookConsumerWidget {
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.0),
             child: Divider(),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 10.0,
-              horizontal: 25.0,
-            ),
-            child: Text(
-              'App',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontSize: 15.0,
-                  ),
-            ),
           ),
           const NavigationDrawerDestination(
             label: Text('Home'),
@@ -189,6 +181,19 @@ class Shell extends HookConsumerWidget {
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.0),
             child: Divider(),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 10.0,
+              horizontal: 25.0,
+            ),
+            child: Text(
+              'App',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 15.0,
+                  ),
+            ),
           ),
           const NavigationDrawerDestination(
             label: Text('Setting'),
